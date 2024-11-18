@@ -26,6 +26,8 @@ struct Face {
     int v1, v2, v3; 
 };
 
+// hello
+
 std::vector<Vertex> vertices;
 std::vector<Face> faces;
 
