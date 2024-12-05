@@ -209,13 +209,13 @@ void mouseMotion(int x, int y) {
         float dy = y - lastY;
 
         if (action == 1) {
-            translateX += dx * 0.01f;
-            translateY -= dy * 0.01f;
+            translateX += dx * 01f;
+            translateY -= dy * 01f;
         } else if (action == 2) {
-            xrot += dy;
-            yrot += dx;
+            xrot += dy*5;
+            yrot += dx*5;
         } else if (action == 3) {
-            scale += dy * 0.01f;
+            scale += dy * 0.05f;
             if (scale < 0.1f) scale = 0.1f;
         }
 
@@ -235,12 +235,12 @@ void keyboard(unsigned char key, int x, int y) {
         action = 3;
 
     // Light movement
-    if (key == 'i') lightPos[1] += 0.5f*2;  // Move up
-    if (key == 'k') lightPos[1] -= 0.5f*2;  // Move down
-    if (key == 'j') lightPos[0] -= 0.5f*2;  // Move left
-    if (key == 'l') lightPos[0] += 0.5f*2;  // Move right
-    if (key == 'o') lightPos[2] += 0.5f*2;  // Move forward
-    if (key == 'u') lightPos[2] -= 0.5f*2;  // Move backward
+    if (key == 'w') lightPos[1] += 5f;  // Move up
+    if (key == 's') lightPos[1] -= 5f;  // Move down
+    if (key == 'a') lightPos[0] -= 5f;  // Move left
+    if (key == 'd') lightPos[0] += 5f;  // Move right
+    if (key == 'i') lightPos[2] += 5f; // Move forward
+    if (key == 'o') lightPos[2] -= 5f;  // Move backward
 
     glLightfv(GL_LIGHT0, GL_POSITION, lightPos); // Update light position
     glutPostRedisplay();
@@ -251,7 +251,7 @@ int main(int argc, char **argv) {
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
     glutInitWindowSize(800, 600);
-    glutCreateWindow("Static Apple with Dynamic Lighting");
+    glutCreateWindow("Static Polygon with Dynamic Lighting");
 
     if (!init()) return -1;
 
