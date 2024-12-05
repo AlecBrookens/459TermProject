@@ -29,12 +29,14 @@ bool mouseDown = false;
 
 float xrot = 0.0f, yrot = 0.0f; // Rotation angles
 float scale = 0.1;  // scaling factor / initial size
-float translateX = 0, translateY = -1, translateZ = -5.0; // Translation factors / initial translation
+float translateX = 0, translateY = -1, translateZ = -10.0; // Translation factors / initial translation
 float lastX = 0.0f, lastY = 0.0f;
 
 int action = 0;   // 0 = nothing, 1 = translate, 2 = rotate, 3 = scale
 
 SurFaceMesh *surfmesh = NULL;
+
+float lightPos[] = {2.0f, 2.0f, 2.0f, 1.0f}; // Light position
 
 // Compute the normal for a triangle
 FLTVECT computeNormal(FLTVECT v1, FLTVECT v2, FLTVECT v3) {
@@ -143,19 +145,12 @@ bool init() {
 
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
-    glEnable(GL_LIGHT1);
 
-    GLfloat light0_pos[] = {1.0f, 1.0f, 1.0f, 1.0f};
-    GLfloat light0_color[] = {1.0f, 0.0f, 0.0f, 1.0f};
-    glLightfv(GL_LIGHT0, GL_POSITION, light0_pos);
-    glLightfv(GL_LIGHT0, GL_DIFFUSE, light0_color);
+    GLfloat lightColor[] = {1.0f, 1.0f, 1.0f, 1.0f}; // White light
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, lightColor);
+    glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
 
-    GLfloat light1_pos[] = {-1.0f, -1.0f, 1.0f, 1.0f};
-    GLfloat light1_color[] = {0.0f, 0.0f, 1.0f, 1.0f};
-    glLightfv(GL_LIGHT1, GL_POSITION, light1_pos);
-    glLightfv(GL_LIGHT1, GL_DIFFUSE, light1_color);
-
-    surfmesh = loadOFFMesh("Apple.off");
+    surfmesh = loadOFFMesh("sample_polygon.off");
     if (surfmesh == NULL)
         return false;
 
@@ -167,13 +162,18 @@ void display() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
 
+    // Apply scene transformations
     glTranslatef(translateX, translateY, translateZ);
     glScalef(scale, scale, scale);
-
     glRotatef(xrot, 1.0f, 0.0f, 0.0f);
     glRotatef(yrot, 0.0f, 1.0f, 0.0f);
 
+    // Draw the Apple (Static)
+    glPushMatrix();
+    glLoadIdentity();  // Reset transformations for Apple
+    glTranslatef(0.0f, -1.0f, -50.0f);  // Position Apple
     drawMesh(surfmesh);
+    glPopMatrix();
 
     glFlush();
     glutSwapBuffers();
@@ -233,61 +233,34 @@ void keyboard(unsigned char key, int x, int y) {
         action = 2;
     else if (key == 's')
         action = 3;
+
+    // Light movement
+    if (key == 'i') lightPos[1] += 0.5f*2;  // Move up
+    if (key == 'k') lightPos[1] -= 0.5f*2;  // Move down
+    if (key == 'j') lightPos[0] -= 0.5f*2;  // Move left
+    if (key == 'l') lightPos[0] += 0.5f*2;  // Move right
+    if (key == 'o') lightPos[2] += 0.5f*2;  // Move forward
+    if (key == 'u') lightPos[2] -= 0.5f*2;  // Move backward
+
+    glLightfv(GL_LIGHT0, GL_POSITION, lightPos); // Update light position
     glutPostRedisplay();
 }
 
-// Menu for interaction
-void menu(int option) {
-    switch (option) {
-        case 1:
-            mode = GL_POINT;
-            break;
-        case 2:
-            mode = GL_LINE;
-            break;
-        case 3:
-            mode = GL_FILL;
-            break;
-        case 4:
-            glShadeModel(GL_FLAT);
-            break;
-        case 5:
-            glShadeModel(GL_SMOOTH);
-            break;
-        case 6:
-            free(surfmesh->vertex);
-            free(surfmesh->face);
-            free(surfmesh);
-            exit(0);
-    }
-    glutPostRedisplay();
-}
-
-int main(int argc, char *argv[]) {
+// Main function
+int main(int argc, char **argv) {
     glutInit(&argc, argv);
-
-    glutInitWindowPosition(50, 50);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
     glutInitWindowSize(800, 600);
-    glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
-    glutCreateWindow("3D Lighting with Flat and Smooth Shading");
+    glutCreateWindow("Static Apple with Dynamic Lighting");
 
-    if (!init()) return 1;
+    if (!init()) return -1;
 
     glutDisplayFunc(display);
     glutReshapeFunc(resize);
-    glutKeyboardFunc(keyboard);
     glutMouseFunc(mouse);
     glutMotionFunc(mouseMotion);
-
-    glutCreateMenu(menu);
-    glutAddMenuEntry("POINT", 1);
-    glutAddMenuEntry("LINE", 2);
-    glutAddMenuEntry("FILL", 3);
-    glutAddMenuEntry("FLAT SHADING", 4);
-    glutAddMenuEntry("SMOOTH SHADING", 5);
-    glutAddMenuEntry("EXIT", 6);
-    glutAttachMenu(GLUT_RIGHT_BUTTON);
-
+    glutKeyboardFunc(keyboard);
     glutMainLoop();
+
     return 0;
 }
