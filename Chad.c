@@ -39,6 +39,24 @@ SurFaceMesh *surfmesh = NULL;
 float light1Pos[] = {2.0f, 2.0f, 2.0f, 1.0f}; // Light 1 position
 float light2Pos[] = {-2.0f, -2.0f, 2.0f, 1.0f}; // Light 2 position
 
+
+// Light colors
+GLfloat light0Colors[][4] = {
+    {1.0f, 1.0f, 1.0f, 1.0f},  // White
+    {1.0f, 0.0f, 0.0f, 1.0f},  // Red
+    {0.0f, 1.0f, 0.0f, 1.0f},  // Green
+    {0.0f, 0.0f, 1.0f, 1.0f},  // Blue
+};
+GLfloat light1Colors[][4] = {
+    {1.0f, 0.0f, 0.0f, 1.0f},  // Red
+    {1.0f, 1.0f, 0.0f, 1.0f},  // Yellow
+    {0.0f, 1.0f, 1.0f, 1.0f},  // Cyan
+    {1.0f, 0.0f, 1.0f, 1.0f},  // Magenta
+};
+
+int light0ColorIndex = 0; // Current color index for light 0
+int light1ColorIndex = 0; // Current color index for light 1
+
 // Compute the normal for a triangle
 FLTVECT computeNormal(FLTVECT v1, FLTVECT v2, FLTVECT v3) {
     FLTVECT normal;
@@ -212,8 +230,8 @@ void mouseMotion(int x, int y) {
         float dy = y - lastY;
 
         // Update light2 position
-        light2Pos[0] += dx * 0.01f;
-        light2Pos[1] -= dy * 0.01f;
+        light2Pos[0] += dx * 0.1f;
+        light2Pos[1] -= dy * 0.1f;
 
         glLightfv(GL_LIGHT1, GL_POSITION, light2Pos); // Update light position
 
@@ -225,19 +243,24 @@ void mouseMotion(int x, int y) {
 
 // Keyboard interaction
 void keyboard(unsigned char key, int x, int y) {
-    if (key == 't')
-        action = 1;
-    else if (key == 'r')
-        action = 2;
-    else if (key == 's')
-        action = 3;
-
     // Light 1 movement
-    if (key == 'w') light1Pos[1] += 0.5f;  // Move up
-    if (key == 's') light1Pos[1] -= 0.5f;  // Move down
-    if (key == 'a') light1Pos[0] -= 0.5f;  // Move left
-    if (key == 'd') light1Pos[0] += 0.5f;  // Move right
-    glLightfv(GL_LIGHT0, GL_POSITION, light1Pos); // Update light position
+    if (key == 'w') light1Pos[1] -= 5.0f;  // Move up
+    if (key == 's') light1Pos[1] += 5.0f;  // Move down
+    if (key == 'a') light1Pos[0] += 5.0f;  // Move left
+    if (key == 'd') light1Pos[0] -= 5.0f;  // Move right
+    glLightfv(GL_LIGHT0, GL_POSITION, light1Pos); // Update light 
+    
+    // Light 0 movement and color change
+    if (key == '0') {
+        light0ColorIndex = (light0ColorIndex + 1) % 4; // Cycle through colors
+        glLightfv(GL_LIGHT0, GL_DIFFUSE, light0Colors[light0ColorIndex]);
+    }
+
+    // Light 1 movement and color change
+    if (key == '1') {
+        light1ColorIndex = (light1ColorIndex + 1) % 4; // Cycle through colors
+        glLightfv(GL_LIGHT1, GL_DIFFUSE, light1Colors[light1ColorIndex]);
+    }
 
     glutPostRedisplay();
 }
