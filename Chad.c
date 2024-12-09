@@ -36,7 +36,8 @@ int action = 0;   // 0 = nothing, 1 = translate, 2 = rotate, 3 = scale
 
 SurFaceMesh *surfmesh = NULL;
 
-float lightPos[] = {2.0f, 2.0f, 2.0f, 1.0f}; // Light position
+float light1Pos[] = {2.0f, 2.0f, 2.0f, 1.0f}; // Light 1 position
+float light2Pos[] = {-2.0f, -2.0f, 2.0f, 1.0f}; // Light 2 position
 
 // Compute the normal for a triangle
 FLTVECT computeNormal(FLTVECT v1, FLTVECT v2, FLTVECT v3) {
@@ -145,10 +146,17 @@ bool init() {
 
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
+    glEnable(GL_LIGHT1); // Enable second light
 
-    GLfloat lightColor[] = {1.0f, 1.0f, 1.0f, 1.0f}; // White light
-    glLightfv(GL_LIGHT0, GL_DIFFUSE, lightColor);
-    glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
+    GLfloat lightColor1[] = {1.0f, 1.0f, 1.0f, 1.0f}; // White light
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, lightColor1);
+    glLightfv(GL_LIGHT0, GL_POSITION, light1Pos);
+
+    GLfloat lightColor2[] = {0.0f, 0.0f, 1.0f, 1.0f}; // Blue light
+    glLightfv(GL_LIGHT1, GL_DIFFUSE, lightColor2);
+    glLightfv(GL_LIGHT1, GL_POSITION, light2Pos);
+
+    glShadeModel(GL_FLAT); // Set flat shading
 
     surfmesh = loadOFFMesh("sample_polygon.off");
     if (surfmesh == NULL)
@@ -168,12 +176,7 @@ void display() {
     glRotatef(xrot, 1.0f, 0.0f, 0.0f);
     glRotatef(yrot, 0.0f, 1.0f, 0.0f);
 
-    // Draw the Apple (Static)
-    glPushMatrix();
-    glLoadIdentity();  // Reset transformations for Apple
-    glTranslatef(0.0f, -1.0f, -50.0f);  // Position Apple
     drawMesh(surfmesh);
-    glPopMatrix();
 
     glFlush();
     glutSwapBuffers();
@@ -208,16 +211,11 @@ void mouseMotion(int x, int y) {
         float dx = x - lastX;
         float dy = y - lastY;
 
-        if (action == 1) {
-            translateX += dx * 01f;
-            translateY -= dy * 01f;
-        } else if (action == 2) {
-            xrot += dy*5;
-            yrot += dx*5;
-        } else if (action == 3) {
-            scale += dy * 0.05f;
-            if (scale < 0.1f) scale = 0.1f;
-        }
+        // Update light2 position
+        light2Pos[0] += dx * 0.01f;
+        light2Pos[1] -= dy * 0.01f;
+
+        glLightfv(GL_LIGHT1, GL_POSITION, light2Pos); // Update light position
 
         lastX = x;
         lastY = y;
@@ -234,15 +232,13 @@ void keyboard(unsigned char key, int x, int y) {
     else if (key == 's')
         action = 3;
 
-    // Light movement
-    if (key == 'w') lightPos[1] += 5f;  // Move up
-    if (key == 's') lightPos[1] -= 5f;  // Move down
-    if (key == 'a') lightPos[0] -= 5f;  // Move left
-    if (key == 'd') lightPos[0] += 5f;  // Move right
-    if (key == 'i') lightPos[2] += 5f; // Move forward
-    if (key == 'o') lightPos[2] -= 5f;  // Move backward
+    // Light 1 movement
+    if (key == 'w') light1Pos[1] += 0.5f;  // Move up
+    if (key == 's') light1Pos[1] -= 0.5f;  // Move down
+    if (key == 'a') light1Pos[0] -= 0.5f;  // Move left
+    if (key == 'd') light1Pos[0] += 0.5f;  // Move right
+    glLightfv(GL_LIGHT0, GL_POSITION, light1Pos); // Update light position
 
-    glLightfv(GL_LIGHT0, GL_POSITION, lightPos); // Update light position
     glutPostRedisplay();
 }
 
@@ -251,7 +247,7 @@ int main(int argc, char **argv) {
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
     glutInitWindowSize(800, 600);
-    glutCreateWindow("Static Polygon with Dynamic Lighting");
+    glutCreateWindow("Static Mesh with Multiple Lights");
 
     if (!init()) return -1;
 
