@@ -27,37 +27,38 @@ typedef struct {
 int mode = GL_LINE; // default mode
 bool mouseDown = false;
 
-float xrot = 0.0f, yrot = 0.0f; // Rotation angles
-float scale = 0.1;  // scaling factor / initial size
-float translateX = 0, translateY = -1, translateZ = -10.0; // Translation factors / initial translation
-float lastX = 0.0f, lastY = 0.0f;
-
-int action = 0;   // 0 = nothing, 1 = translate, 2 = rotate, 3 = scale
+float xrot = 0.0f;
+float yrot = 0.0f;
+float scale = 0.1; 
+float translateX = 0;
+float translateY = -1;
+float translateZ = -10.0;
+float lastX = 0.0f; 
+float lastY = 0.0f;
 
 SurFaceMesh *surfmesh = NULL;
 
-float light1Pos[] = {2.0f, 2.0f, 2.0f, 1.0f}; // Light 1 position
-float light2Pos[] = {-2.0f, -2.0f, 2.0f, 1.0f}; // Light 2 position
+float light0Pos[] = {2.0f, 2.0f, 2.0f, 1.0f}; // Light 0 Starting position
+float light1Pos[] = {-2.0f, -2.0f, 2.0f, 1.0f}; // Light 1 Starting position
 
 
-// Light colors
 GLfloat light0Colors[][4] = {
-    {1.0f, 1.0f, 1.0f, 1.0f},  // White
-    {1.0f, 0.0f, 0.0f, 1.0f},  // Red
-    {0.0f, 1.0f, 0.0f, 1.0f},  // Green
-    {0.0f, 0.0f, 1.0f, 1.0f},  // Blue
+    {0.5f, 0.5f, 0.5f, 1.0f},  // White
+    {0.5f, 0.0f, 0.0f, 1.0f},  // Red
+    {0.0f, 0.5f, 0.0f, 1.0f},  // Green
+    {0.0f, 0.0f, 0.5f, 1.0f},  // Blue
 };
 GLfloat light1Colors[][4] = {
-    {1.0f, 0.0f, 0.0f, 1.0f},  // Red
-    {1.0f, 1.0f, 0.0f, 1.0f},  // Yellow
-    {0.0f, 1.0f, 1.0f, 1.0f},  // Cyan
-    {1.0f, 0.0f, 1.0f, 1.0f},  // Magenta
+    {0.05f, 0.05f, 0.05f, 1.0f},  // 10% White
+    {0.5f, 0.5f, 0.0f, 1.0f},  // Yellow
+    {0.0f, 0.5f, 0.5f, 1.0f},  // Cyan
+    {0.5f, 0.0f, 0.5f, 1.0f},  // Magenta
 };
 
-int light0ColorIndex = 0; // Current color index for light 0
-int light1ColorIndex = 0; // Current color index for light 1
+int light0ColorIndex = 0;
+int light1ColorIndex = 0; 
 
-// Compute the normal for a triangle
+// Compute the normal vectoors
 FLTVECT computeNormal(FLTVECT v1, FLTVECT v2, FLTVECT v3) {
     FLTVECT normal;
     FLTVECT u, v;
@@ -87,7 +88,6 @@ FLTVECT computeNormal(FLTVECT v1, FLTVECT v2, FLTVECT v3) {
     return normal;
 }
 
-// Read OFF file mesh
 SurFaceMesh* loadOFFMesh(const char *filename) {
     int num, n, m;
     int a, b, c, d, e;
@@ -97,7 +97,6 @@ SurFaceMesh* loadOFFMesh(const char *filename) {
     FILE *fin;
 
     if ((fin = fopen(filename, "r")) == NULL) {
-        printf("Error reading mesh file...\n");
         surfmesh = NULL;
         exit(0);
     }
@@ -134,7 +133,6 @@ SurFaceMesh* loadOFFMesh(const char *filename) {
     return surfmesh;
 }
 
-// Render the mesh
 void drawMesh(SurFaceMesh *mesh) {
     if (mesh == NULL) return;
 
@@ -155,7 +153,6 @@ void drawMesh(SurFaceMesh *mesh) {
     glEnd();
 }
 
-// Initialization function
 bool init() {
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glEnable(GL_DEPTH_TEST);
@@ -164,17 +161,17 @@ bool init() {
 
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
-    glEnable(GL_LIGHT1); // Enable second light
+    glEnable(GL_LIGHT1); 
 
-    GLfloat lightColor1[] = {1.0f, 1.0f, 1.0f, 1.0f}; // White light
-    glLightfv(GL_LIGHT0, GL_DIFFUSE, lightColor1);
-    glLightfv(GL_LIGHT0, GL_POSITION, light1Pos);
+    GLfloat lightColor0[] = {1.0f, 1.0f, 1.0f, 1.0f}; 
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, lightColor0);
+    glLightfv(GL_LIGHT0, GL_POSITION, light0Pos);
 
-    GLfloat lightColor2[] = {0.0f, 0.0f, 1.0f, 1.0f}; // Blue light
-    glLightfv(GL_LIGHT1, GL_DIFFUSE, lightColor2);
-    glLightfv(GL_LIGHT1, GL_POSITION, light2Pos);
+    GLfloat lightColor1[] = {0.0f, 0.0f, 1.0f, 1.0f};
+    glLightfv(GL_LIGHT1, GL_DIFFUSE, lightColor1);
+    glLightfv(GL_LIGHT1, GL_POSITION, light1Pos);
 
-    glShadeModel(GL_FLAT); // Set flat shading
+    glShadeModel(GL_FLAT); 
 
     surfmesh = loadOFFMesh("sample_polygon.off");
     if (surfmesh == NULL)
@@ -183,7 +180,6 @@ bool init() {
     return true;
 }
 
-// Display function
 void display() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
@@ -200,7 +196,6 @@ void display() {
     glutSwapBuffers();
 }
 
-// Resize function
 void resize(int w, int h) {
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
@@ -213,7 +208,6 @@ void resize(int w, int h) {
     glLoadIdentity();
 }
 
-// Mouse interaction
 void mouse(int button, int state, int x, int y) {
     if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
         mouseDown = true;
@@ -225,15 +219,15 @@ void mouse(int button, int state, int x, int y) {
 }
 
 void mouseMotion(int x, int y) {
+    //light 1 movement
     if (mouseDown) {
         float dx = x - lastX;
         float dy = y - lastY;
 
-        // Update light2 position
-        light2Pos[0] += dx * 0.1f;
-        light2Pos[1] -= dy * 0.1f;
+        light1Pos[0] += dx * 0.1f;
+        light1Pos[1] -= dy * 0.1f;
 
-        glLightfv(GL_LIGHT1, GL_POSITION, light2Pos); // Update light position
+        glLightfv(GL_LIGHT1, GL_POSITION, light1Pos);
 
         lastX = x;
         lastY = y;
@@ -241,22 +235,21 @@ void mouseMotion(int x, int y) {
     }
 }
 
-// Keyboard interaction
 void keyboard(unsigned char key, int x, int y) {
-    // Light 1 movement
-    if (key == 'w') light1Pos[1] -= 5.0f;  // Move up
-    if (key == 's') light1Pos[1] += 5.0f;  // Move down
-    if (key == 'a') light1Pos[0] += 5.0f;  // Move left
-    if (key == 'd') light1Pos[0] -= 5.0f;  // Move right
-    glLightfv(GL_LIGHT0, GL_POSITION, light1Pos); // Update light 
+    // Light 0 movement
+    if (key == 'w') light0Pos[1] -= 5.0f;  // Move up
+    if (key == 's') light0Pos[1] += 5.0f;  // Move down
+    if (key == 'a') light0Pos[0] += 5.0f;  // Move left
+    if (key == 'd') light0Pos[0] -= 5.0f;  // Move right
+    glLightfv(GL_LIGHT0, GL_POSITION, light0Pos); 
     
-    // Light 0 movement and color change
+    // Light 0 color change
     if (key == '0') {
         light0ColorIndex = (light0ColorIndex + 1) % 4; // Cycle through colors
         glLightfv(GL_LIGHT0, GL_DIFFUSE, light0Colors[light0ColorIndex]);
     }
 
-    // Light 1 movement and color change
+    // Light 1 color change
     if (key == '1') {
         light1ColorIndex = (light1ColorIndex + 1) % 4; // Cycle through colors
         glLightfv(GL_LIGHT1, GL_DIFFUSE, light1Colors[light1ColorIndex]);
@@ -265,7 +258,6 @@ void keyboard(unsigned char key, int x, int y) {
     glutPostRedisplay();
 }
 
-// Main function
 int main(int argc, char **argv) {
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
