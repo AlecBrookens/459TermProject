@@ -66,6 +66,7 @@ FLTVECT computeNormal(FLTVECT v1, FLTVECT v2, FLTVECT v3) {
     v.z = v3.z - v1.z;
 
     // Compute cross product
+    // gives a vector perpendicular to the plane
     normal.x = u.y * v.z - u.z * v.y;
     normal.y = u.z * v.x - u.x * v.z;
     normal.z = u.x * v.y - u.y * v.x;
