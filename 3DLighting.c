@@ -27,12 +27,6 @@ typedef struct {
 int mode = GL_LINE; // default mode
 bool mouseDown = false;
 
-float xrot = 0.0f;
-float yrot = 0.0f;
-float scale = 0.1; 
-float translateX = 0;
-float translateY = -1;
-float translateZ = -10.0;
 float lastX = 0.0f; 
 float lastY = 0.0f;
 
@@ -43,16 +37,15 @@ float light1Pos[] = {-2.0f, -2.0f, 2.0f, 1.0f}; // Light 1 Starting position
 
 
 GLfloat light0Colors[][4] = {
-    {0.5f, 0.5f, 0.5f, 1.0f},  // White
-    {0.5f, 0.0f, 0.0f, 1.0f},  // Red
-    {0.0f, 0.5f, 0.0f, 1.0f},  // Green
-    {0.0f, 0.0f, 0.5f, 1.0f},  // Blue
+    {0.1f, 0.1f, 0.1f, 1.0f},  // White
+    {0.1f, 0.0f, 0.0f, 1.0f},  // Red
+    {0.0f, 0.1f, 0.0f, 1.0f},  // Green
+    {0.0f, 0.0f, 0.1f, 1.0f},  // Blue
 };
-GLfloat light1Colors[][4] = {
-    {0.05f, 0.05f, 0.05f, 1.0f},  // 10% White
-    {0.5f, 0.5f, 0.0f, 1.0f},  // Yellow
-    {0.0f, 0.5f, 0.5f, 1.0f},  // Cyan
-    {0.5f, 0.0f, 0.5f, 1.0f},  // Magenta
+GLfloat light1Colors[][3] = {
+    {0.1f, 0.1f, 0.0f, 1.0f},  // Yellow
+    {0.0f, 0.1f, 0.1f, 1.0f},  // Cyan
+    {0.1f, 0.0f, 0.1f, 1.0f},  // Magenta
 };
 
 int light0ColorIndex = 0;
@@ -163,11 +156,11 @@ bool init() {
     glEnable(GL_LIGHT0);
     glEnable(GL_LIGHT1); 
 
-    GLfloat lightColor0[] = {1.0f, 1.0f, 1.0f, 1.0f}; 
+    GLfloat lightColor0[] = {0.1f, 0.1f, 0.1f, 1.0f}; 
     glLightfv(GL_LIGHT0, GL_DIFFUSE, lightColor0);
     glLightfv(GL_LIGHT0, GL_POSITION, light0Pos);
 
-    GLfloat lightColor1[] = {0.0f, 0.0f, 1.0f, 1.0f};
+    GLfloat lightColor1[] = {0.1f, 0.1f, 0.0f, 1.0f};
     glLightfv(GL_LIGHT1, GL_DIFFUSE, lightColor1);
     glLightfv(GL_LIGHT1, GL_POSITION, light1Pos);
 
@@ -185,10 +178,10 @@ void display() {
     glLoadIdentity();
 
     // Apply scene transformations
-    glTranslatef(translateX, translateY, translateZ);
-    glScalef(scale, scale, scale);
-    glRotatef(xrot, 1.0f, 0.0f, 0.0f);
-    glRotatef(yrot, 0.0f, 1.0f, 0.0f);
+    glTranslatef(0.0, -1.0, -10.0);
+    glScalef(0.1, 0.1, 0.1);
+    glRotatef(0.0f, 1.0f, 0.0f, 0.0f);
+    glRotatef(0.0f, 0.0f, 1.0f, 0.0f);
 
     drawMesh(surfmesh);
 
@@ -237,10 +230,10 @@ void mouseMotion(int x, int y) {
 
 void keyboard(unsigned char key, int x, int y) {
     // Light 0 movement
-    if (key == 'w') light0Pos[1] -= 5.0f;  // Move up
-    if (key == 's') light0Pos[1] += 5.0f;  // Move down
-    if (key == 'a') light0Pos[0] += 5.0f;  // Move left
-    if (key == 'd') light0Pos[0] -= 5.0f;  // Move right
+    if (key == 'w') light0Pos[1] += 10.0f;  // Move up
+    if (key == 's') light0Pos[1] -= 10.0f;  // Move down
+    if (key == 'a') light0Pos[0] -= 10.0f;  // Move left
+    if (key == 'd') light0Pos[0] += 10.0f;  // Move right
     glLightfv(GL_LIGHT0, GL_POSITION, light0Pos); 
     
     // Light 0 color change
@@ -251,7 +244,7 @@ void keyboard(unsigned char key, int x, int y) {
 
     // Light 1 color change
     if (key == '1') {
-        light1ColorIndex = (light1ColorIndex + 1) % 4; // Cycle through colors
+        light1ColorIndex = (light1ColorIndex + 1) % 3; // Cycle through colors
         glLightfv(GL_LIGHT1, GL_DIFFUSE, light1Colors[light1ColorIndex]);
     }
 
